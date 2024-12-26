@@ -1,4 +1,4 @@
-Aconst LIFF_ID = "LIFFアプリIDをここに入力"; // LINE DeveloperのLIFF IDを入力
+Aconst LIFF_ID = "2006724914-VqdBzxeJ"; // LINE DeveloperのLIFF IDを入力
 const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzHdERL5NRmxnZt4SqweKJVbB9HS0xfwfvih-JNGEHwexOSTn286ng_OzxCLVwtH7aLsA/exec"; // GASのWebアプリURL
 
 document.addEventListener("DOMContentLoaded", () => {
