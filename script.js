@@ -1,4 +1,4 @@
-const LIFF_ID = "LIFFアプリIDをここに入力"; // LINE DeveloperのLIFF IDを入力
+Aconst LIFF_ID = "LIFFアプリIDをここに入力"; // LINE DeveloperのLIFF IDを入力
 const GAS_ENDPOINT = "Google Apps ScriptのエンドポイントURLをここに入力"; // GASのWebアプリURL
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => {
       console.error("LIFF初期化エラー: ", err);
-      displayMessage("LIFF初期化に失敗しました。");
+      displayMessage("エラーが発生しました。数分後にもう一度お試しください。");
     });
 
   // 登録ボタンのイベントリスナー
@@ -33,12 +33,12 @@ function loadNameOptions() {
           selectElement.appendChild(option);
         });
       } else {
-        displayMessage("選択可能な名前がありません。");
+        displayMessage("全部員の登録が完了しました");
       }
     })
     .catch(err => {
-      console.error("名前選択肢取得エラー: ", err);
-      displayMessage("名前選択肢の取得に失敗しました。");
+      console.error("選択肢取得エラー: ", err);
+      displayMessage("選択肢の取得に失敗しました。");
     });
 }
 
