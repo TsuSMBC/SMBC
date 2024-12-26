@@ -1,61 +1,94 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFF App</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <title>部員連携</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #00b900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+    </style>
 </head>
 <body>
-    <h1>名前を選択してください</h1>
-    <select id="nameSelect">
-        <!-- 選択肢は JavaScript で動的に追加 -->
+    <h1>部員連携</h1>
+    <select id="memberSelect">
+        <option value="">名前を選択してください</option>
     </select>
-    <button onclick="registerName()">登録</button>
+    <button id="registerButton" disabled>連携する</button>
 
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        const LIFF_ID = '2006724914-VqdBzxeJ';
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzHdERL5NRmxnZt4SqweKJVbB9HS0xfwfvih-JNGEHwexOSTn286ng_OzxCLVwtH7aLsA/exec';
+        // GASのウェブアプリURL
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzHdERL5NRmxnZt4SqweKJVbB9HS0xfwfvih-JNGEHwexOSTn286ng_OzxCLVwtH7aLsA/exec';
 
-        async function main() {
-            await liff.init({ liffId: LIFF_ID });
+        // LIFF初期化
+        liff.init({
+            liffId: 'YOUR_LIFF_ID'
+        }).then(() => {
             if (!liff.isLoggedIn()) {
                 liff.login();
+            } else {
+                initializeApp();
             }
-            const userId = liff.getDecodedIDToken().sub;
-            fetchNames(userId);
-        }
+        }).catch((err) => {
+            console.error('LIFF initialization failed', err);
+        });
 
-        async function fetchNames(userId) {
-            const response = await fetch(GAS_WEB_APP_URL);
-            const names = await response.json();
-            const select = document.getElementById('nameSelect');
-            names.forEach(name => {
+        // アプリケーションの初期化
+        async function initializeApp() {
+            // メンバーリストの取得
+            const response = await fetch(GAS_URL);
+            const data = await response.json();
+            
+            const select = document.getElementById('memberSelect');
+            data.members.forEach(member => {
                 const option = document.createElement('option');
-                option.value = name;
-                option.text = name;
+                option.value = member;
+                option.textContent = member;
                 select.appendChild(option);
             });
-        }
 
-        async function registerName() {
-            const name = document.getElementById('nameSelect').value;
-            const userId = liff.getDecodedIDToken().sub;
-            await fetch(GAS_WEB_APP_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ type: 'register', name, userId })
+            // セレクトボックスの変更イベント
+            select.addEventListener('change', (e) => {
+                document.getElementById('registerButton').disabled = !e.target.value;
             });
-            liff.sendMessages([{
-                type: 'text',
-                text: '登録が完了しました。'
-            }]);
-            liff.closeWindow();
-        }
 
-        main();
+            // 登録ボタンのクリックイベント
+            document.getElementById('registerButton').addEventListener('click', async () => {
+                const name = select.value;
+                const userId = liff.getContext().userId;
+
+                // GASに登録リクエストを送信
+                await fetch(`${GAS_URL}?name=${encodeURIComponent(name)}&userId=${userId}`);
+                
+                // 完了メッセージを表示
+                alert('登録が完了しました');
+                
+                // LIFFを閉じる
+                liff.closeWindow();
+            });
+        }
     </script>
 </body>
 </html>
