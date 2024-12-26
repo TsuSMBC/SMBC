@@ -1,46 +1,61 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>部員登録</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .form-group {
-      margin: 15px 0;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFF App</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h1>部員登録</h1>
-  <div id="app">
-    <p>名前を選択してください。</p>
-    <div class="form-group">
-      <select id="nameSelect">
-        <option value="">選択してください</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <button id="registerButton">登録する</button>
-    </div>
-    <div id="message"></div>
-  </div>
-  <script src="https://static.line-scdn.net/liff/2/sdk.js"></script>
-  <script src="./script.js"></script>
+    <h1>名前を選択してください</h1>
+    <select id="nameSelect">
+        <!-- 選択肢は JavaScript で動的に追加 -->
+    </select>
+    <button onclick="registerName()">登録</button>
+
+    <script>
+        const LIFF_ID = 'YOUR_LIFF_ID';
+        const GAS_WEB_APP_URL = 'YOUR_GAS_WEB_APP_URL';
+
+        async function main() {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            }
+            const userId = liff.getDecodedIDToken().sub;
+            fetchNames(userId);
+        }
+
+        async function fetchNames(userId) {
+            const response = await fetch(GAS_WEB_APP_URL);
+            const names = await response.json();
+            const select = document.getElementById('nameSelect');
+            names.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.text = name;
+                select.appendChild(option);
+            });
+        }
+
+        async function registerName() {
+            const name = document.getElementById('nameSelect').value;
+            const userId = liff.getDecodedIDToken().sub;
+            await fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type: 'register', name, userId })
+            });
+            liff.sendMessages([{
+                type: 'text',
+                text: '登録が完了しました。'
+            }]);
+            liff.closeWindow();
+        }
+
+        main();
+    </script>
 </body>
 </html>
