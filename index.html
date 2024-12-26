@@ -77,10 +77,10 @@
             // 登録ボタンのクリックイベント
             document.getElementById('registerButton').addEventListener('click', async () => {
                 const name = select.value;
-                const userId = liff.getIDToken();
+                const idToken = liff.getIDToken();
 
                 // GASに登録リクエストを送信
-                await fetch(`${GAS_URL}?name=${encodeURIComponent(name)}&userId=${userId}`);
+                await fetch(`${GAS_URL}?name=${encodeURIComponent(name)}&idToken=${idToken}`);
                 
                 // 完了メッセージを表示
                 alert('登録が完了しました');
